@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLASTICA CENTER COMISSÕES CONSULTAS E CIRURGIAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>PLASTICA CENTER COMISSÕES CONSULTAS E CIRURGIAS</h1>
+        <p>Bem-vindo ao sistema</p>
+    </header>
+    <div class="main">
+        <div class="sidebar">
+            <button onclick="showSection('dashboard')">
+                <span class="icon">&#128200;</span> Dashboard
+            </button>
+            <button onclick="showSection('consultations')">
+                <span class="icon">&#128221;</span> Consultas
+            </button>
+            <button onclick="showSection('attendances')">
+                <span class="icon">&#128197;</span> Atendimentos
+            </button>
+            <button onclick="showSection('surgeries')">
+                <span class="icon">&#128295;</span> Cirurgias
+            </button>
+            <button onclick="showSection('commission')">
+                <span class="icon">&#128200;</span> Calculadora de Comissões
+            </button>
+            <button onclick="showSection('settings')">
+                <span class="icon">&#9881;</span> Configurações
+            </button>
+        </div>
+        <div class="container">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section">
+                <h2>Dashboard</h2>
+                <div>
+                    <button class="btn-nav" onclick="prevDashboardMonth()">Anterior</button>
+                    <span id="dashboardMonthLabel"></span>
+                    <button class="btn-nav" onclick="nextDashboardMonth()">Próximo</button>
+                </div>
+                <div id="dashboardContent"></div>
+            </div>
+
+            <!-- Consultations Section -->
+            <div id="consultations" class="section active">
+                <h2>Cadastro de Consultas</h2>
+                <form id="consultationForm">
+                    <div class="form-group">
+                        <label for="patientName">Nome da Paciente:</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cpf">CPF:</label>
+                        <input type="text" id="cpf" required oninput="maskCPF(this)">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Telefone:</label>
+                        <input type="text" id="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeSelect">Funcionário:</label>
+                        <select id="employeeSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Data do Pagamento:</label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="consultationDate">Data da Consulta:</label>
+                        <input type="date" id="consultationDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentProof">Comprovante de Pagamento:</label>
+                        <input type="file" id="paymentProof" accept="image/*,.pdf" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cadastrar Consulta</button>
+                    </div>
+                </form>
+                <h3>Relatório de Consultas</h3>
+                <button class="btn-nav" onclick="prevMonth()">Anterior</button>
+                <button class="btn-nav" onclick="nextMonth()">Próximo</button>
+                <div id="monthlyReport"></div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome da Paciente</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Funcionário</th>
+                            <th>Data do Pagamento</th>
+                            <th>Data da Consulta</th>
+                            <th>Comprovante de Pagamento</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="consultationList"></tbody>
+                </table>
+                <div class="form-group">
+                    <label for="employeeSelectPDF">Gerar Relatório PDF:</label>
+                    <select id="employeeSelectPDF" required></select>
+                    <button onclick="generatePDF()">Baixar PDF</button>
+                </div>
+            </div>
+
+            <!-- Attendances Section -->
+            <div id="attendances" class="section">
+                <h2>Cadastro de Atendimentos</h2>
+                <form id="attendanceForm">
+                    <div class="form-group">
+                        <label for="attendanceEmployeeSelect">Funcionário:</label>
+                        <select id="attendanceEmployeeSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="attendanceDate">Data do Atendimento:</label>
+                        <input type="date" id="attendanceDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="attendanceCount">Quantidade de Atendimentos:</label>
+                        <input type="number" id="attendanceCount" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cadastrar Atendimento</button>
+                    </div>
+                </form>
+                <h3>Atendimentos Cadastrados</h3>
+                <div>
+                    <button class="btn-nav" onclick="prevAttendanceMonth()">Anterior</button>
+                    <span id="attendanceMonthLabel"></span>
+                    <button class="btn-nav" onclick="nextAttendanceMonth()">Próximo</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Funcionário</th>
+                            <th>Data do Atendimento</th>
+                            <th>Quantidade</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceList"></tbody>
+                </table>
+            </div>
+
+            <!-- Surgeries Section -->
+            <div id="surgeries" class="section">
+                <h2>Cadastro de Cirurgias</h2>
+                <form id="surgeryForm">
+                    <div class="form-group">
+                        <label for="patientSelect">Paciente:</label>
+                        <select id="patientSelect" required onchange="updateConsultorAndCPF(this.value)"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="consultor">Consultor Responsável:</label>
+                        <input type="text" id="consultor" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="cpfSurgery">CPF:</label>
+                        <input type="text" id="cpfSurgery" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="surgeryDate">Data da Cirurgia:</label>
+                        <input type="date" id="surgeryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="surgeryValue">Valor da Cirurgia (R$):</label>
+                        <input type="number" id="surgeryValue" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="operatingDoctor">Médico Operador:</label>
+                        <select id="operatingDoctor" required></select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cadastrar Cirurgia</button>
+                    </div>
+                </form>
+                <h3>Cirurgias Cadastradas</h3>
+                <div>
+                    <button class="btn-nav" onclick="prevSurgeryMonth()">Anterior</button>
+                    <span id="surgeryMonthLabel"></span>
+                    <button class="btn-nav" onclick="nextSurgeryMonth()">Próximo</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Consultor</th>
+                            <th>CPF</th>
+                            <th>Data da Cirurgia</th>
+                            <th>Valor</th>
+                            <th>Médico Operador</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="surgeryList"></tbody>
+                </table>
+            </div>
+
+            <!-- Commissions Section -->
+            <div id="commission" class="section">
+                <h2>Calculadora de Comissões</h2>
+                <div class="form-group">
+                    <label for="attendanceCountCommission">Quantidade de Atendimentos:</label>
+                    <input type="number" id="attendanceCountCommission" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="consultationCountCommission">Quantidade de Consultas Agendadas:</label>
+                    <input type="number" id="consultationCountCommission" min="0" required>
+                </div>
+                <div class="form-group">
+                    <button onclick="calculateCommission()">Calcular Comissão</button>
+                </div>
+                <div id="commissionResult" class="result" style="display: none;"></div>
+                <h3>Calculadora de Cirurgias</h3>
+                <div class="form-group">
+                    <label for="attendanceCountSurgery">Quantidade de Atendimentos:</label>
+                    <input type="number" id="attendanceCountSurgery" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="surgeryCountCommission">Quantidade de Cirurgias Realizadas:</label>
+                    <input type="number" id="surgeryCountCommission" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="totalSurgeryValueCommission">Valor Total das Cirurgias (R$):</label>
+                    <input type="number" id="totalSurgeryValueCommission" min="0" required>
+                </div>
+                <div class="form-group">
+                    <button onclick="calculateSurgeryCommission()">Calcular Comissão de Cirurgias</button>
+                </div>
+                <div id="surgeryCommissionResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="section">
+                <h2>Configurações</h2>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label for="consultationValue">Valor da Consulta (R$):</label>
+                        <input type="number" id="consultationValue" value="100" required>
+                        <button type="button" onclick="saveConsultationValue()">Salvar</button>
+                    </div>
+                    <div class="form-group" style="display: none;">
+                        <label for="commissionValue">Valor Base da Comissão (R$):</label>
+                        <input type="number" id="commissionValue" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="currentEditPassword">Senha Atual para edição/exclusão:</label>
+                        <input type="password" id="currentEditPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">Nova Senha para edição/exclusão:</label>
+                        <input type="password" id="editPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tempPassword">Criar senha temporária:</label>
+                        <input type="text" id="tempPassword" readonly>
+                        <button type="button" onclick="generateTempPassword()">Gerar Senha Temporária</button>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Salvar Configurações</button>
+                    </div>
+                </form>
+                <h3>Cadastro de Funcionários</h3>
+                <form id="employeeForm">
+                    <div class="form-group">
+                        <label for="employeeName">Nome do Funcionário:</label>
+                        <input type="text" id="employeeName" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cadastrar Funcionário</button>
+                    </div>
+                </form>
+                <h3>Funcionários Cadastrados</h3>
+                <ul id="employeeList"></ul>
+                <h3>Cadastro de Médicos</h3>
+                <form id="doctorForm">
+                    <div class="form-group">
+                        <label for="doctorName">Nome do Médico:</label>
+                        <input type="text" id="doctorName" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cadastrar Médico</button>
+                    </div>
+                </form>
+                <ul id="doctorList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase App (core SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <!-- Firebase Firestore SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
+
+    <!-- Script customizado -->
+    <script src="scripts.js"></script>
+</body>
+</html>
